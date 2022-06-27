@@ -126,6 +126,26 @@ server.post("/messages", async (req, res) => {
   }
 });
 
+server.post("/status", async (req, res) => {
+  const { user } = req.headers;
+  try {
+    const findUser = await db
+      .collection("participants")
+      .findOne({ name: user });
+    if (!findUser) {
+      res.status(404).send();
+      return;
+    }
+    await db
+      .collection("participants")
+      .updateOne({ name: user }, { $set: { lastStatus: Date.now() } });
+    res.status(200).send();
+  } catch (error) {
+    res.status(500).send();
+    return;
+  }
+});
+
 server.listen(5000, () => {
   console.log("Servidor rodando!");
 });
